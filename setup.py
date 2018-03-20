@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='bwapi',
-    version='3.1.0',
+    version='3.2.0',
     description='A software development kit for the Brandwatch API',
     url='https://github.com/BrandwatchLtd/api_sdk',
     author='Amy Barker, Jamie Lebovics, Paul Siegel and Jessica Bowden',
@@ -18,6 +18,7 @@ setup(
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5'
     ],
-    py_modules=['bwproject', 'bwresources', 'bwdata', 'filters', 'bwexceptions'],
+    py_modules=['bwproject', 'bwresources', 'bwdata',
+                'filters', 'bwexceptions', 'bwerror_codes'],
     install_requires=['requests']
 )

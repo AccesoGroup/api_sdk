@@ -6,9 +6,34 @@ import logging
 import os
 import requests
 
-from bwexceptions import BrandwatchApiException
+import bwerror_codes
+import bwexceptions as exc
+
 
 logger = logging.getLogger('bwapi.%s' % __name__)
+
+
+def _raise_bw_exception(response, data, errors):
+    if len(errors) == 1:
+        error = errors[0]
+        error_code = error.get('error_code')
+        error_message = error.get('error_message')
+        logger.error("There was an error with this "
+                     "request: \nURL: {}\nDATA: {}\n"
+                     "ERROR: {} - {}".format(
+            response.url, data, error_code, error_message)
+        )
+        if error_code == bwerror_codes.PROJECT_NOT_FOUND:
+            raise exc.BrandwatchApiProjectNotFoundException(error_message)
+        else:
+            raise exc.BrandwatchApiException("{} - {}".format(
+                error_code, error_message)
+            )
+    else:
+        logger.error("There were several errors with this "
+                     "request: \nURL: {}\nDATA: {}\n"
+                     "ERRORS: {}".format(response.url, data, errors))
+        raise exc.BrandwatchApiException(errors)
 
 
 class BWUser(object):
@@ -231,15 +256,11 @@ class BWUser(object):
         except Exception as e:
             logger.error("Something was wrong getting a response from "
                          "URL %s" % url)
-            raise BrandwatchApiException(str(e))
+            raise exc.BrandwatchApiException(str(e))
         else:
             errors = response_json.get('errors')
             if errors:
-                logger.error("There was an error with this "
-                             "request: \n{}\n{}\n{}".format(response.url, data,
-                                                            errors))
-                raise BrandwatchApiException(errors)
-
+                _raise_bw_exception(response, data, errors)
             return response_json
 
 
