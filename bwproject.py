@@ -87,7 +87,7 @@ class BWUser(object):
         user = requests.get("%sme" % self.api_url, params={"access_token": token}).json()
 
         if "username" in user:
-            if username is None or user["username"] == username:
+            if username is None or user["username"].lower() == username.lower():
                 self.username = user["username"]
                 self.token = token
             else:
@@ -108,9 +108,11 @@ class BWUser(object):
             self.api_url + self.oauthpath,
             params={
                 "username": username,
-                "password": password,
                 "grant_type": grant_type,
                 "client_id": client_id
+            },
+            data={
+                "password": password
             }).json()
         if "access_token" in token:
             self.username = username
@@ -120,8 +122,8 @@ class BWUser(object):
 
     def _read_auth(self, username, token_path):
         user_tokens = self._read_auth_file(token_path)
-        if username in user_tokens:
-            self._update_by_test_auth(username, user_tokens[username])
+        if username.lower() in user_tokens:
+            self._update_by_test_auth(username, user_tokens[username.lower()])
         else:
             raise KeyError("Token not found in file: %s" % token_path)
 
