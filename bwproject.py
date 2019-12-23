@@ -16,24 +16,27 @@ logger = logging.getLogger('bwapi.%s' % __name__)
 def _raise_bw_exception(response, data, errors):
     if len(errors) == 1:
         error = errors[0]
-        error_code = error.get('error_code')
-        error_message = error.get('error_message')
-        logger.error("There was an error with this "
-                     "request: \nURL: {}\nDATA: {}\n"
-                     "ERROR: {} - {}".format(
-            response.url, data, error_code, error_message)
+        code_number = error.get('code')
+        error_code = error.get('error_code', None)
+        error_message = error.get('message')
+        logger.error(
+            "There was an error with this request: \nURL: {}\nDATA: {}\n"
+            "ERROR: {} {} - {}".format(response.url, data, code_number,
+                                       error_code, error_message)
         )
+
         if error_code == bwerror_codes.PROJECT_NOT_FOUND:
-            raise exc.BrandwatchApiProjectNotFoundException(error_message)
+            exception_class = exc.BrandwatchApiProjectNotFoundException
         else:
-            raise exc.BrandwatchApiException("{} - {}".format(
-                error_code, error_message)
-            )
+            exception_class = exc.BrandwatchApiException
+
+        raise exception_class(error_message, response.status_code,
+                              code_number, error_code)
     else:
         logger.error("There were several errors with this "
                      "request: \nURL: {}\nDATA: {}\n"
                      "ERRORS: {}".format(response.url, data, errors))
-        raise exc.BrandwatchApiException(errors)
+        raise exc.BrandwatchApiException(errors, response.status_code)
 
 
 class BWUser(object):
