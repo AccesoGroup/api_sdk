@@ -28,7 +28,7 @@ def _raise_bw_exception(response, data, errors):
         if error_code == bwerror_codes.PROJECT_NOT_FOUND:
             exception_class = exc.BrandwatchApiProjectNotFoundException
         else:
-            exception_class = exc.BrandwatchApiException
+            exception_class = exc.BrandwatchApiResponseException
 
         raise exception_class(error_message, response.status_code,
                               code_number, error_code)
@@ -36,7 +36,7 @@ def _raise_bw_exception(response, data, errors):
         logger.error("There were several errors with this "
                      "request: \nURL: {}\nDATA: {}\n"
                      "ERRORS: {}".format(response.url, data, errors))
-        raise exc.BrandwatchApiException(errors, response.status_code)
+        raise exc.BrandwatchApiResponseException(errors, response.status_code)
 
 
 class BWUser(object):

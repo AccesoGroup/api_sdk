@@ -4,6 +4,13 @@
 
 
 class BrandwatchApiException(Exception):
+    """
+    Base exception for Brandwatch API.
+    """
+    pass
+
+
+class BrandwatchApiResponseException(BrandwatchApiException):
     def __init__(self, msg, response_status_code, code_number=None, code=None):
         """
         Generic exception for Brandwatch API response errors.
@@ -14,6 +21,8 @@ class BrandwatchApiException(Exception):
             code_number: `int` error code number
             code: `str` error code
         """
+        super(BrandwatchApiResponseException, self).__init__(msg)
+
         self.msg = msg
         self.code_number = code_number
         self.code = code
@@ -23,7 +32,7 @@ class BrandwatchApiException(Exception):
         return u'{} - {}'.format(self.response_status_code, self.msg)
 
 
-class BrandwatchApiProjectNotFoundException(BrandwatchApiException):
+class BrandwatchApiProjectNotFoundException(BrandwatchApiResponseException):
     """
     Exception for when project related to an API call is not found.
     """
